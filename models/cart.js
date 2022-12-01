@@ -1,3 +1,4 @@
+const { createVerify } = require('crypto')
 const fs = require('fs')
 const path = require('path')
 
@@ -15,7 +16,7 @@ module.exports = class Cart {
 			const existingProductIndex = cart.products.findIndex(prod => prod.id === id)
 			const existingProduct = cart.products[existingProductIndex]
 			let updatedProduct
-			//Add new produt/ increase quantity
+			// Add new product/ increase quantity
 			if (existingProduct) {
 				updatedProduct = { ...existingProduct }
 				updatedProduct.qty = updatedProduct.qty + 1
@@ -29,6 +30,35 @@ module.exports = class Cart {
 			fs.writeFile(p, JSON.stringify(cart), err => {
 				console.log(err)
 			})
+		})
+	}
+
+	static deleteProduct(id, productPrice) {
+		fs.writeFile(p, (err, fileContent) => {
+			if (err) {
+				return
+			}
+			const updatedCart = { ...JSON.parse(fileContent) }
+			const product = updatedCart.products.findIndex(prod => prod.id === id)
+			const productQty = product.qty
+			updatedCart.products = updatedCart.products.filter(prod => prod.id !== id)
+			updatedCart.totalPrice = updatedCart.totalPrice - productPrice * productQty
+
+			fs.writeFile(p, JSON.stringify(updatedCart), err => {
+				console.log(err)
+			})
+		})
+	}
+
+	static getCart(cb) {
+		fs.readFile(p, (err, fileContent) => {
+			const cart = JSON.parse(fileContent)
+      if (err) {
+        cb(null)
+      } else {
+        cb(cart)
+      }
+			cb(cart)
 		})
 	}
 }
